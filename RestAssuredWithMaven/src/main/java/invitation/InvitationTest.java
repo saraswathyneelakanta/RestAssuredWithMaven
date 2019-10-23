@@ -97,8 +97,7 @@ public class InvitationTest {
 		given()
 		 .spec(requestSpec)
 		 .header("AppToken",InvitationTest.appToken)
-		 .body(invitationreq) //XML serialization and deserialization is take care of by Jackson serialization
-		 //https://www.james-willett.com/rest-assured-serialization-with-json-and-xml
+		 .body(invitationreq) //XML serialization and deserialization is required.
 		.when().post("/create")
 		.then()
 		.assertThat()
