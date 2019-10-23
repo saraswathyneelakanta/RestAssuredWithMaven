@@ -1,0 +1,313 @@
+=== INVITATION API ===========
+------------------------------
+
+1> This is an invitation API which takes XML as the input and XML as output
+2> Each call needs user id which should have the authorization for calling api. 
+3> Each call should have a valid token for the parent application which is valid for 2 hours and steps to generate the token in given at the bottom
+4> The API purpose is to get the invitation ID for the child application as the success result if all the inputs are given for the below data
+		Request Payload parameters:
+		---------------------------
+		--> Child Application ID : Mandatory
+		--> Child Application Name : Optional 
+		--> Child Application Role : Mandatory (Note that roles are associated to Child Application ID)
+		--> Child Application Location : Mandatory (Note that Location are associated to Child Application ID)
+		--> User Name : Recipient User Name (Mandatory)
+		--> User EmailID : Recipient Email ID (Mandatory)
+		--> Invite Expiry Date : Invitation Expiry date (Optional : If blank its taken as 1 month)
+		
+	Invitation ID would be used in registration which is out of scope for the same.	
+		
+5> You can update the information for a given invitation id which is output of the create invite
+6> You can fetch the details of the invitation by passing the invitation idea
+7> You can delete the invitation as well.
+
+Expectation:
+----------
+
+1> Come up with the test strategy for testing all the apis life cycle changes
+2> Create a testplan with the test strategy for the same and checkin into a excel file
+3> Consider all the positive, negative scenarios for the common headers and payload cases.
+4> Please put the code with your favorite test framework/language and checkin to a repository
+
+** Checkin the code to git and share links to your repositories **
+
+===============================================	===============================================	===============================================	===============================================
+
+Common headers 
+	
+	Headers Required:
+	-----------------
+	--> Accept --> text/XML
+	--> content-type --> text/XML
+
+	Request headers:
+	---------------
+	1> ApplicationID -- 3 digit
+	2> AppToken --> expires every 2 hours 
+			==> generation through appID and password and return the XML (Details below at the bottom)
+	3> UserID --> 10digit long Requestor user ID(Assume anything), This needs to authorize if the user has authority to do the API Call!
+
+
+	===============================================
+	
+	Generation of Token :
+		ENDPOINT --> http://authenticate.testapp.com:5030/Service/httpservice
+	
+
+
+===============================================	===============================================	===============================================	===============================================
+	
+	***************************************************************************************************************************************************************************************
+	***************************************************************************************************************************************************************************************
+
+===============================================	===============================================	===============================================	===============================================
+
+
+1> CreateInvite:
+----------------	
+
+	URI: https://testApplication.com/invitation/create
+	
+	Method : POST
+
+	
+	Payload:
+	--------
+	<invitationRequest> 
+    	<requestHeader> 
+        	<applicationId>XXX</applicationId> --> Authentication Application
+        	<appToken>XXXXXXXX<appToken>
+        	<userID>XXXXXXXX</userID>
+        </requestHeader>
+        <requestBody>
+        	<applicationData>
+        		<appID>XXXX</appID>
+        		<appName>XXXX</appName>
+        		<appRole>XXXX</appRole>
+        		<appLocation>XXX</appLocation>
+        	</applicationData>	
+        	<userData>
+        		<userName>XXXXXX</userName> -- Any valid string
+        		<userEmail>XXXXX</userEmail> -- has to maintain yyyy@yyy.yyy format
+        	</userData>
+        	<inviteOption>
+        		<inviteExpiry>XXXXX</inviteExpiry> --> Follows date format: MM-DD-YYYY
+        </requestBody>
+	</invitationRequest> 
+	
+	
+	SampleResponse:
+	--------------
+	
+	API Response headers :
+	
+	  "headerName": "Content-Type", "headerValue": "text/xml; charset=UTF-8"
+      "headerName": "Connection", "headerValue": "keep-alive"
+    
+    <invitationResponse>
+    	<ResponseHeader>
+			<status>OK</status>  -- OR <status>ERROR</status>
+			<transactionID>XXXXXX</transactionID> --- random digit 
+		<ResponseHeader>
+		<ResponseBody>
+	    	<responseStatus>SUCCESS</responseStatus>
+    		<id>XXXXXXXX</id> -->  digit code
+            <applicationName>XXXXXX</applicationName>
+            <status>XXXXX</status> -- can only be QUEUED, INVITED, CANCELLED
+		<ResponseBody>
+	</invitationResponse>
+
+===============================================	===============================================	===============================================	===============================================
+	
+	***************************************************************************************************************************************************************************************
+	***************************************************************************************************************************************************************************************
+
+===============================================	===============================================	===============================================	===============================================
+
+	
+	2> UpdateInvite:
+    ----------------	
+
+	URI: https://testApplication.com/invitation/update/{ID} 
+	-- ID obtained as output of create in the previous step
+	
+	Method : PUT
+	
+	Payload:
+	--------
+	<invitationRequest> 
+    	<requestHeader> 
+        	<applicationId>XXX</applicationId> --> Authentication Application
+        	<appToken>XXXXXXXX<appToken>
+        	<userID>XXXXXXXX</userID>
+        </requestHeader>
+        <requestBody>
+        	<applicationData>
+        		<appID>XXXX</appID>
+        		<appName>XXXX</appName>
+        		<appRole>XXXX</appRole>
+        		<appLocation>XXX</appLocation>
+        	</applicationData>	
+        	<userData>
+        		<userName>XXXXXX</userName> -- Any valid string
+        		<userEmail>XXXXX</userEmail> -- has to maintain yyyy@yyy.yyy format
+        	</userData>
+        	<inviteOption>
+        		<inviteExpiry>XXXXX</inviteExpiry> --> Follows date format: MM-DD-YYYY
+        </requestBody>
+	</invitationRequest> 
+	
+	
+	SampleResponse:
+	--------------
+	
+	API Response headers :
+	
+	  "headerName": "Content-Type", "headerValue": "text/xml; charset=UTF-8"
+      "headerName": "Connection", "headerValue": "keep-alive"
+    
+    <invitationResponse>
+    	<ResponseHeader>
+			<status>OK</status>  -- OR <status>ERROR</status>
+			<transactionID>XXXXXX</transactionID> --- random digit 
+		<ResponseHeader>
+		<ResponseBody>
+	    	<responseStatus>SUCCESS</responseStatus>
+    		<id>XXXXXXXX</id> --> digit code which should be same as the put URI contains
+            <applicationName>XXXXXX</applicationName>
+            <status>XXXXX</status> -- can only be QUEUED, INVITED, CANCELLED
+		<ResponseBody>
+	</invitationResponse>
+	
+===============================================	===============================================	===============================================	===============================================
+	
+	***************************************************************************************************************************************************************************************
+	***************************************************************************************************************************************************************************************
+
+===============================================	===============================================	===============================================	===============================================
+
+	
+	3> FetchInvitation:
+	--------------------
+	
+	URI : https://testApplication.com/invitation/fetch/{ID}
+	-- ID obtained as output of create/update in the previous steps
+
+	Method : GET
+	
+	SampleResponse:
+	--------------
+	
+	API Response headers :
+	
+	  "headerName": "Content-Type", "headerValue": "text/xml; charset=UTF-8"
+      "headerName": "Connection", "headerValue": "keep-alive"
+    
+    <invitationResponse>
+    	<ResponseHeader>
+			<status>OK</status>  -- OR <status>ERROR</status>
+			<transactionID>XXXXXX</transactionID> --- random digit 
+		<ResponseHeader>
+		<ResponseBody>
+	    	<responseStatus>SUCCESS</responseStatus>
+    		<id>XXXXXXXX</id> -->  digit code
+            <applicationName>XXXXXX</applicationName>
+            <status>XXXXX</status> -- can only be QUEUED, INVITED, CANCELLED
+		<ResponseBody>
+	</invitationResponse>
+	
+===============================================	===============================================	===============================================	===============================================
+	
+	***************************************************************************************************************************************************************************************
+	***************************************************************************************************************************************************************************************
+
+===============================================	===============================================	===============================================	===============================================
+	
+	4> DeleteInvitation:
+	--------------------
+	
+	URI: https://testApplication.com/invitation/delete
+	-- ID obtained as output of create/update in the previous steps
+	
+	Method : POST 
+	
+	Payload:
+	--------
+	<invitationRequest> 
+    	<requestHeader> 
+        	<applicationId>XXX</applicationId> --> Authentication Application
+        	<appToken>XXXXXXXX<appToken>
+        	<userID>XXXXXXXX</userID>
+        </requestHeader>
+        <requestBody>
+        	<invitationID>{ID}</invitationID>
+        </requestBody>
+    </invitationRequest> 
+	
+		SampleResponse:
+	--------------
+	
+	API Response headers :
+	
+	  "headerName": "Content-Type", "headerValue": "text/xml; charset=UTF-8"
+      "headerName": "Connection", "headerValue": "keep-alive"
+    
+    <invitationResponse>
+    	<ResponseHeader>
+			<status>OK</status>  -- OR <status>ERROR</status>
+			<transactionID>XXXXXX</transactionID> --- random digit 
+		<ResponseHeader>
+		<ResponseBody>
+	    	<responseStatus>SUCCESS</responseStatus>
+    		<id>XXXXXXXX</id> -->  digit code
+            <applicationName>XXXXXX</applicationName>
+            <status>CANCELLED</status> -- can only be QUEUED, INVITED, CANCELLED
+		<ResponseBody>
+	</invitationResponse>
+	
+	============================================================================================================================================================================================
+	
+	***************************************************************************************************************************************************************************************
+	***************************************************************************************************************************************************************************************
+	============================================================================================================================================================================================
+	
+	Generation of Token :
+		ENDPOINT --> http://authenticate.testapp.com:5030/Service/httpservice
+	
+	Sample Request:
+	---------------
+		<ServiceRequest>
+   			 <RequestHeader>
+		        <consumerAppId>123</consumerAppId>
+		        <serviceName>AuthenticationService</serviceName>
+        		<operationName>authenticate</operationName>
+			</RequestHeader>
+			<RequestPayload>
+				<data>
+                    <AuthenticationRequestData>
+                        <applicationId>123</applicationId>
+                        <applicationPassword>Test123</applicationPassword>
+                        <clientIP>127.0.0.1</clientIP>
+                    </AuthenticationRequestData>
+                </data>
+			</RequestPayload>
+		</ServiceRequest>
+		
+	Sample Response:
+	----------------
+		<ServiceResponse>
+    		<ResponseHeader>
+		        <responseID>6934884f-4dd4-45b3-a0bc-cc244f76c316</espGuid>
+		        <status>OK</status>  -- OR <status>ERROR</status>
+		    <ResponseHeader>
+		    <ResponseBody>
+		    	<AuthenticationResponseData>
+                	<applicationId>123</applicationId>    
+                	<errorMessage></errorMessage>  -- Empty is success and header is OK OR some error when header status is NOT OK
+                	<token>G5hBQnEGYugwc2aYQ==</token> -- Assume any token response
+            </ResponseBody>
+        <ServiceResponse>  
+		        
+		
+	===============================================
+
